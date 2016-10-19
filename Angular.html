@@ -1,0 +1,190 @@
+<html>
+  <head>
+    <title>My Angular App</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+      <script src="http://code.jquery.com/jquery-2.2.4.js"></script>
+  </head>
+  <body >
+      <div ng-app="myapp">
+      <div ng-controller="first">
+      
+          <li ng-repeat="city in cities">{{city}}</li>
+          
+      </div>
+      
+      <hr>
+      
+      <input type="checkbox" ng-model="checked" ng-init="checked=true">
+      <div ng-if="checked">Unchck above to hide me.</div>
+      <hr>
+      
+      <div ng-controller="second">
+      
+          <select ng-model="selected" ng-options="c.code as c.name for c in countries"></select>
+          
+      </div>
+      
+      <hr>
+      <div ng-controller="third">
+          <input type="button" ng-click="page='one'" value="First"/>
+          <input type="button" ng-click="page='two'" value="second"/>
+          <input type="button" ng-click="page='three'" value="third"/>
+          <input type="button" ng-click="page='four'" value="default"/>
+      <div ng-switch on="page">
+          <div ng-switch-when = "one">
+              <h1>This is ONe.</h1>
+          </div>
+          
+          <div ng-switch-when = "two">
+              <h1>Ojas Kale</h1>
+          </div>
+          
+          <div ng-switch-when = "three">
+              <h1>Something different</h1>
+          </div>
+          
+          <div ng-switch-default>
+              <h1>This is Default.</h1>
+          </div>
+          
+      </div>
+          
+      </div>
+      
+      <div ng-controller="fourth">
+          <form ng-submit="addThis()">
+                <input type="text" ng-model="item"/>
+                <input type="submit" value="Add to List"/>
+          </form>
+      <ul>
+       <li ng-repeat="item in items">{{item.name}}</li>    
+      </ul>
+      </div>
+      <hr>
+      <div>
+      <h1>{{1500|currency}}</h1>
+      </div>
+      
+      <div ng-controller="datewala">
+          <h1> {{date|date:'fullDate'}} and time is {{date|date:'shortTime'}}</h1>
+      </div>
+      <hr>
+      
+      <div ng-controller="diredire">
+          <h1>Custom directive</h1>
+      <hello-directive>I am hidding </hello-directive>
+      </div>
+      <hr>
+      <div ng-controller="filterss">
+      <input type="text" ng-model="name" placeholder="FilterBy">
+          <table border="2">
+          <thead>
+                <th>City</th>
+                <th>State</th>
+          </thead>
+              <tr ng-repeat="city in cities | filter:name">
+                    <td>{{city.cityname}}</td>
+                    <td>{{city.state}}</td>
+              </tr>
+          </table>
+      </div>
+    <hr>
+      <div ng-controller="getdemo">
+          <div id='data'>
+            <ul>
+                <li ng-repeat="obj in data">{{obj.login}},{{obj.type}},<a ng-href="{{obj.followers_url}}">Followers</a></li>  
+            </ul>
+          </div>
+      </div>    
+          
+      </div>
+      <hr>
+      
+      
+  </body>
+    <script>
+    var module = angular.module("myapp",[]).directive("helloDirective",function(){
+            return{
+                restrict: 'E',
+                replace: false,
+                transclude: true,                
+                templateUrl: 'template.html',
+                link: function(scope, ele, attr){
+                    debugger; 
+                    ele.find("h1").css({backgroundColor:"yellow", color:"red"});
+                    ele.css({backgroundColor:"yello", color:"blue"});
+                },
+                compile: function(element,attr,transclude){
+                    return function(scope,ele){
+                      var orig = transclude(scope);
+                        scope.dirtext = orig.text();
+                        console.log("orginal "+orig);
+                    };
+                }
+                
+            };
+        });
+    
+        
+        module.controller("first",function($scope){
+            $scope.cities=['chicago','orlando','las vegas','san jose','madison'];
+        });
+        
+        module.controller("second",function($scope){
+            $scope.countries = [{code:'USA', name:'united states'},{code:'IN', name:'india'},{code:'UK', name:'united Kingdom'},{code:'CH', name:'Chian'}];
+            $scope.selected = $scope.countries[1].code;
+        });
+        
+        module.controller("third",function($scope){
+           $scope.page="two"; 
+        });
+        
+        module.controller("fourth",function($scope){
+            $scope.items=[];
+            $scope.addThis=function(){
+                $scope.items.push({name: $scope.item});
+                $scope.item='';
+            }
+            
+        });
+        
+        module.controller("datewala",function($scope){
+           $scope.date= new Date(); 
+        });
+        
+        module.controller("filterss",function($scope){
+           $scope.cities=[{cityname:'Dallas', state:'tx'},{cityname:'Austin', state:'tx'},
+                          {cityname:'San Jose', state:'CA'},{cityname:'Boston', state:'MA'},
+                          {cityname:'Madison', state:'WI'},{cityname:'Chicago', state:'Illinois'}];
+        });
+        
+        module.controller("diredire",function($scope){
+           $scope.greetings="Hello worlds." 
+        });
+        
+        module.filter("myurrency",function(){
+           return function(input,symbol,place ){
+               if(isNaN(input)){
+                   return input;
+               }
+               else{
+                   if (place){
+                       return "<em>"+symbol+ " "+input;
+                   }
+                   else{
+                       return "<em>"+input+ " "+symbol;
+                   }
+               }
+           } 
+        });
+        
+        module.controller("getdemo",function($scope,$http){
+            $http.get('https://api.github.com/users').then(function(response){
+                $scope.data=response.data;
+            },function(response){
+                $('#data').html("error occured");
+            });
+        });
+        
+    </script>
+</html>
